@@ -88,10 +88,10 @@ class FeatureExtractor:
                 elif self.base_domain not in href and href.startswith(("http://", "https://")):
                     unsafe_count += 1
 
-            percentage = (unsafe_count / total_anchors) * 100
-            if percentage < 31.0:
+            percentage = (unsafe_count / total_anchors)
+            if percentage < 0.33:
                 return 1
-            elif percentage < 67.0:
+            elif percentage < 0.66:
                 return 0
             return -1
         except Exception:
