@@ -75,7 +75,7 @@ class FeatureExtractor:
 
 
     def httpsCheck(self):
-        if not self.parsed_url:
+        if not self.soup:
             return -1
         return 1 if self.parsed_url.scheme.lower() == "https" else -1
 

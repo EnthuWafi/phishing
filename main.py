@@ -44,13 +44,36 @@ if st.button("Run Threat Assessment"):
                 st.divider()
                 if final_pred == 0:
                     st.error(f"🚨 ALERT: High Phishing Probability Detected! ({phishing_prob:.2f}%)")
-                    st.warning("This URL displays architectural anomalies consistent with credential harvesting pages.")
+                    st.warning("This website displays architectural anomalies consistent with phishing website.")
                 else:
                     st.success(f"✅ Safe Connection Verified. ({safe_prob:.2f}%)")
                     st.write("The link conforms to standard domain layout guidelines.")
                 
                 if extractor.soup is None:
                     st.warning("URL is offline. Results may be incorrect.")
+                else:
+                    st.success(f"Parsed website URL: \n{extractor.parsed_url}")
+                
+                st.write(" ")
+                st.subheader("Live Feature Activation Table")
+                st.write("This table displays the real-time scores evaluated by the feature extraction layer:")
+
+                status_mapping = {
+                    1: "🟩 Safe / Normal",
+                    0: "🟨 Suspicious / Warning",
+                    -1: "🟥 Phishing / High Risk"
+                }
+
+                audit_rows = []
+                for feature_name, raw_value in feature_dict.items():
+                    audit_rows.append({
+                        "Structural Feature": feature_name,
+                        "Score": raw_value,
+                        "App Evaluation": status_mapping.get(raw_value, "Unknown")
+                    })
+
+                audit_df = pd.DataFrame(audit_rows)
+                st.table(audit_df)
                         
             except Exception as e:
                 st.error(f"An error occurred during live page execution. Error details: {e}")
