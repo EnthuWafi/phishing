@@ -20,25 +20,35 @@ class FeatureExtractor:
         self.response = None
         self.soup = None
 
-        # Parse URL Structure Safely 
+        # Standardize initial input format
+        initial_url = url if "://" in url else "https://" + url
+
+        # Execute live network request first to follow the redirect chain
         try:
-            normalized_url = url if "://" in url else "https://" + url
-            self.parsed_url = urlparse(normalized_url)
+            # requests.get automatically follows redirects by default
+            self.response = requests.get(initial_url, timeout=5, headers={"User-Agent": "Mozilla/5.0"})
+            self.soup = BeautifulSoup(self.response.text, 'html.parser')
+            
+            # Capture the true final landing URL after all redirects complete
+            final_url = self.response.url
+        except requests.RequestException:
+            self.soup = None
+            final_url = initial_url
+
+        # Parse the verified landing URL structure safely
+        try:
+            self.parsed_url = urlparse(final_url)
             self.domain = self.parsed_url.netloc
+
+            # Strip port numbers if present in the network location string
+            if ":" in self.domain:
+                self.domain = self.domain.split(":")[0]
 
             domain_parts = self.domain.split('.')
             self.base_domain = '.'.join(domain_parts[-2:]) if len(domain_parts) >= 2 else self.domain
         except Exception:
             self.domain = ""
             self.base_domain = ""
-
-        # Execute Network Requests with explicit Timeouts
-        try:
-            # Timeout prevents the Streamlit app from freezing indefinitely
-            self.response = requests.get(normalized_url, timeout=5, headers={"User-Agent": "Mozilla/5.0"})
-            self.soup = BeautifulSoup(self.response.text, 'html.parser')
-        except requests.RequestException:
-            self.soup = None
 
     
     # Scammers commonly use hyphens to create lookalike brand domains

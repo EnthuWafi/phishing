@@ -22,6 +22,7 @@ if st.button("Run Threat Assessment"):
             try:
                 # Extract the feature dictionary from the input URL
                 extractor = FeatureExtractor(url_input)
+                
                 feature_dict = extractor.getFeaturesDict()
 
                 # Read the feature names from the top-level pipeline asset
@@ -47,7 +48,10 @@ if st.button("Run Threat Assessment"):
                 else:
                     st.success(f"✅ Safe Connection Verified. ({safe_prob:.2f}%)")
                     st.write("The link conforms to standard domain layout guidelines.")
-                    
+                
+                if extractor.soup is None:
+                    st.warning("URL is offline. Results may be incorrect.")
+                        
             except Exception as e:
                 st.error(f"An error occurred during live page execution. Error details: {e}")
     else:
